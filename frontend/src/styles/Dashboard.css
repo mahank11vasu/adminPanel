@@ -1,0 +1,24 @@
+.dashboard-container {
+    display: flex;
+  }
+  
+  .dashboard-content {
+    margin-left: 250px;
+    padding: 20px;
+    width: 100%;
+  }
+  
+  .dashboard-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .dashboard-card {
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+  }
+  
