@@ -102,18 +102,26 @@ const useUserStore = create(
             // console.log("✅ Permissions from API:", data.user.permissions);
             const rolePermissions = await getRolePermissions(data.user.role);
             // console.log("✅ Role Permissions from API:", rolePermissions); 
-            set({ 
-              user: { 
-                id: data.user._id,
-                username: data.user.username,
-                name: data.user.name,
-                role: data.user.role,
-                email: data.user.email,
-                phone: data.user.phone,
-                age: data.user.age,
-                profileImage: data.user.profileImage,
-                permissions: rolePermissions || [] 
-              } 
+            set((state) => {
+              if (
+                JSON.stringify(state.user?.permissions) !== JSON.stringify(rolePermissions) ||
+                JSON.stringify(state.user) !== JSON.stringify(data.user)
+              ) {
+                return {
+                  user: {
+                    id: data.user._id,
+                    username: data.user.username,
+                    name: data.user.name,
+                    role: data.user.role,
+                    email: data.user.email,
+                    phone: data.user.phone,
+                    age: data.user.age,
+                    profileImage: data.user.profileImage,
+                    permissions: rolePermissions || [],
+                  },
+                };
+              }
+              return state; 
             });
             return data.user;
           } else {
@@ -137,6 +145,7 @@ export const useSession = () => {
     queryKey: ["session"],
     queryFn: useUserStore.getState().fetchSession,
     refetchOnWindowFocus: true,
+    enabled: !!useUserStore.getState().user,
     retry: false, 
   });
 };

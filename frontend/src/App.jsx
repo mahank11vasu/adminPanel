@@ -17,19 +17,31 @@ function App() {
 
   if (isLoading) return <h2>Loading...</h2>;
 
+  const userPermissions = user?.permissions ?? [];
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
-        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
-        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/" />} />
-        <Route path="/all-users" element={user ? <AllUsers /> : <Navigate to="/" />} />
-        <Route path="/products/add" element={user ? <AddProducts /> : <Navigate to="/" />} />
-        <Route path="/products/edit" element={user ? <EditProduct /> : <Navigate to="/" />} />
-        <Route path="/manage-permissions" element={user ? <ManagePermissions /> : <Navigate to ="/" />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+      {isLoading ? (
+        <h2>Loading...</h2>
+      ) : (
+        <Routes>
+          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+          <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
+  
+          {userPermissions.includes("Dashboard") && <Route path="/dashboard" element={<Dashboard />} />}
+          {userPermissions.includes("Profile") && <Route path="/profile" element={<Profile />} />}
+          {userPermissions.includes("All Users") && <Route path="/all-users" element={<AllUsers />} />}
+          {userPermissions.includes("Products") && (
+            <>
+              <Route path="/products/add" element={<AddProducts />} />
+              <Route path="/products/edit" element={<EditProduct />} />
+            </>
+          )}
+          {userPermissions.includes("Manage Permissions") && <Route path="/manage-permissions" element={<ManagePermissions />} />}
+  
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      )}
     </Router>
   );
 }
