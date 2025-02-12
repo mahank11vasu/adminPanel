@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, required: true},
   role: {
     type: String,
-    enum: ["manager", "player", "backend dev", "frontend dev", "editor", "organizer", "customer", "subscriber"],
+    enum: ["admin", "manager", "player", "backend dev", "frontend dev", "editor", "organizer", "customer", "subscriber"],
     required: true,
   },
   profileImage: { type: String },

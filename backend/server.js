@@ -4,6 +4,8 @@ import cors from "cors";
 import session from "express-session";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
+import productRoutes from "./routes/productRoutes.js"
+import roleRoutes from "./routes/roleRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -31,14 +33,11 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  console.log("Session Data:", req.session);
-  next();
-});
-
 app.use("/uploads", express.static("uploads"));
 
 app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/roles", roleRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

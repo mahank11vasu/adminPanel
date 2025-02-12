@@ -51,3 +51,20 @@ export const updateUserProfile = async (userId, formData) => {
     throw error.response?.data?.message || "Profile update failed!";
   }
 };
+
+export const getAllUsers = async () => {
+  const response = await apiClient.get("/users/all");
+  return response.data;
+};
+
+
+export const deleteUser = async (id) => {
+  await apiClient.delete(`/users/delete/${id}`);
+};
+
+export const updateUser = async (id, formData) => {
+  const response = await apiClient.put(`/users/update/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+};

@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import User from "../models/userModel.js";
+import Role from "../models/roleModel.js";
 import multer from "multer";
 import path from "path";
 import jwt from "jsonwebtoken";
@@ -85,6 +86,10 @@ export const getSessionUser = async (req, res) => {
       if (!user) {
         return res.status(404).json({ message: "User not found!" });
       }
+
+      const role = await Role.findOne({ role: user.role });
+      const permissions = role ? role.permissions : [];
+
       res.json({ user: { 
         _id: user._id, 
         username: user.username,
@@ -93,7 +98,8 @@ export const getSessionUser = async (req, res) => {
         email: user.email,
         phone: user.phone,
         age: user.age,
-        profileImage: user.profileImage 
+        profileImage: user.profileImage,
+        permissions: permissions,
       }});
     } catch (error) {
       console.error("Error fetching session user:", error);
@@ -144,6 +150,39 @@ export const updateUser = async (req, res) => {
     await user.save();
     res.json({ message: "Profile updated successfully!", user });
   } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password"); 
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    if (user.profileImage) {
+      const imagePath = path.join(process.cwd(), user.profileImage);
+      fs.unlink(imagePath, (err) => {
+        if (err) console.error("Error deleting profile image:", err);
+      });
+    }
+
+    await User.findByIdAndDelete(id);
+    res.json({ message: "User deleted successfully!" });
+  } catch (error) {
+    console.error("Delete Error:", error);
     res.status(500).json({ message: "Server Error", error });
   }
 };
