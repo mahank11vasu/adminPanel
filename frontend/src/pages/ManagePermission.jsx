@@ -19,7 +19,7 @@ const ManagePermissions = () => {
     };
     getRoles();
   }, []);
-
+  
   const handleOpenModal = async (role) => {
     setSelectedRole(role);
     const permissions = await fetchRolePermissions(role);

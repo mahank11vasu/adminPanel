@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, Card, Container, Modal } from "@mui/material";
 import Sidebar from "../components/Sidebar";
-import useUserStore from "../store/userStore";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import useUserStore, { useSession } from "../store/userStore";
 import { updateUserProfile } from "../api/userApi";
 import "../styles/Profile.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Profile = () => {
-  const { user, setUser, fetchSession } = useUserStore();
+  const { user, setUser } = useUserStore();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -18,11 +19,17 @@ const Profile = () => {
     profileImage: null,
   });
 
-  useEffect(() => {
-    if (!user?.id) {
-      fetchSession(); 
-    }
-  }, [user, fetchSession]);
+  const { data: sessionData, isLoading } = useSession();
+
+  const updateProfileMutation = useMutation({
+    mutationFn: ({ id, formData }) => updateUserProfile(id, formData),
+    onSuccess: (updatedUser) => {
+      setUser(updatedUser);
+      setOpen(false);
+    },
+  });
+
+  if (isLoading) return <p>Loading profile...</p>;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,16 +44,8 @@ const Profile = () => {
       console.error("User ID is missing!");
       return;
     }
-  
-    try {
-      const updatedUser = await updateUserProfile(user.id, formData);
-      if (updatedUser) {
-        setUser(updatedUser); 
-        setOpen(false);
-      }
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
+
+    await updateProfileMutation.mutateAsync({ id: user.id, formData });
   };
 
   const profileImageUrl = user?.profileImage ? `${API_BASE_URL}/${user.profileImage}` : null;
@@ -90,7 +89,9 @@ const Profile = () => {
             <option value="subscriber">Subscriber</option>
           </select>
           <input type="file" name="profileImage" onChange={handleFileChange} />
-          <button onClick={handleSubmit}>Save</button>
+          <button onClick={handleSubmit} disabled={updateProfileMutation.isLoading}>
+            {updateProfileMutation.isLoading ? "Saving..." : "Save"}
+          </button>
           <button onClick={() => setOpen(false)}>Cancel</button>
         </div>
       </Modal>

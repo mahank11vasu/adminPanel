@@ -99,16 +99,11 @@ const useUserStore = create(
         try {
           const data = await getSessionUser();
           if (data?.user) {
-            // console.log("✅ Permissions from API:", data.user.permissions);
             const rolePermissions = await getRolePermissions(data.user.role);
-            // console.log("✅ Role Permissions from API:", rolePermissions); 
             set((state) => {
-              if (
-                JSON.stringify(state.user?.permissions) !== JSON.stringify(rolePermissions) ||
-                JSON.stringify(state.user) !== JSON.stringify(data.user)
-              ) {
+              if (JSON.stringify(state.user?.permissions) !== JSON.stringify(rolePermissions)) {
                 return {
-                  user: {
+                  user: { 
                     id: data.user._id,
                     username: data.user.username,
                     name: data.user.name,
@@ -117,8 +112,8 @@ const useUserStore = create(
                     phone: data.user.phone,
                     age: data.user.age,
                     profileImage: data.user.profileImage,
-                    permissions: rolePermissions || [],
-                  },
+                    permissions: rolePermissions || [] 
+                  } 
                 };
               }
               return state; 

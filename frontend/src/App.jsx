@@ -17,7 +17,12 @@ function App() {
 
   if (isLoading) return <h2>Loading...</h2>;
 
-  const userPermissions = user?.permissions ?? [];
+  function ProtectedRoute({ children, permission }) {
+    const { user } = useUserStore();
+    if (!user) return <Navigate to="/" />;
+    if (permission && !user.permissions?.includes(permission)) return <Navigate to="/dashboard" />;
+    return children;
+  }
 
   return (
     <Router>
@@ -27,18 +32,13 @@ function App() {
         <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
-  
-          {userPermissions.includes("Dashboard") && <Route path="/dashboard" element={<Dashboard />} />}
-          {userPermissions.includes("Profile") && <Route path="/profile" element={<Profile />} />}
-          {userPermissions.includes("All Users") && <Route path="/all-users" element={<AllUsers />} />}
-          {userPermissions.includes("Products") && (
-            <>
-              <Route path="/products/add" element={<AddProducts />} />
-              <Route path="/products/edit" element={<EditProduct />} />
-            </>
-          )}
-          {userPermissions.includes("Manage Permissions") && <Route path="/manage-permissions" element={<ManagePermissions />} />}
-  
+
+          <Route path="/dashboard" element={<ProtectedRoute permission="Dashboard"><Dashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute permission="Profile"><Profile /></ProtectedRoute>} />
+          <Route path="/all-users" element={<ProtectedRoute permission="All Users"><AllUsers /></ProtectedRoute>} />
+          <Route path="/products/add" element={<ProtectedRoute permission="Products"><AddProducts /></ProtectedRoute>} />
+          <Route path="/products/edit" element={<ProtectedRoute permission="Products"><EditProduct /></ProtectedRoute>} />
+          <Route path="/manage-permissions" element={<ProtectedRoute permission="Manage Permissions"><ManagePermissions /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       )}
