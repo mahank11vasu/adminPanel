@@ -9,6 +9,7 @@ import EditProduct from "./pages/EditProduct";
 import ManagePermissions from "./pages/ManagePermission";
 import useUserStore from "./store/userStore";
 import { useSession } from "./store/userStore";
+import PromoCodeManager from "./components/PromoCodeManager/page";
 import "./App.css";
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
           <Route path="/products/add" element={<ProtectedRoute permission="Products"><AddProducts /></ProtectedRoute>} />
           <Route path="/products/edit" element={<ProtectedRoute permission="Products"><EditProduct /></ProtectedRoute>} />
           <Route path="/manage-permissions" element={<ProtectedRoute permission="Manage Permissions"><ManagePermissions /></ProtectedRoute>} />
+          <Route path="/promo-codes" element={<PromoCodeManager />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       )}
