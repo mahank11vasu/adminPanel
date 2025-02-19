@@ -95,7 +95,7 @@ const PromoCodesUi = ({ data, setData }) => {
           </thead>
           <tbody className="border-black border-y-2 text-[14px] text-[#706D6D]">
             {currentItems2.map((res, index) => (
-              <tr key={res._id} className={`border-t ${index % 2 === 0 ? "bg-gray-100" : "bg-gray-100"} ${!res.status ? "bg-red-500 text-white" : "bg-white"}`}>
+              <tr key={res._id.$oid} className={`border-t ${index % 2 === 0 ? "bg-gray-100" : "bg-gray-100"} ${!res.status ? "bg-red-500 text-white" : "bg-white"}`}>
                 <td className="px-4 py-2 text-center">{index + indexOfFirstItem + 1}</td>
                 <td className="px-4 py-2 text-center">{res?.code || "N/A"}</td>
                 <td className="px-4 py-2 text-center">

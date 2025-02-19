@@ -1,12 +1,31 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import PromoCodesUi from "../../ui/PromoCodeUi/page";
+import { Box, Typography } from "@mui/material";
+import { Add } from "@mui/icons-material";
+import { useState, useEffect } from "react";
 
 
 const PromoCodeManager = ()=>{
+
+  const [resWidth, setResWidth] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const handleResize = () => setResWidth(window.innerWidth > 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
    
 ////  React Query 
+const { data, isLoading, isError, error } = useQuery({
+  queryKey: ["promoCodes"],
+  queryFn: fetchPromoCode,
+  staleTime: 1000 * 60 * 10,
+  refetchOnWindowFocus: true,
+});
 
+if(isLoading) return <p>Loading...</p>
+if(isError) return <p>Error:{error.message}</p>
 
 
 return(<>
@@ -51,3 +70,11 @@ export default PromoCodeManager;
 
 
 //React Query Function goes here------>>>>>>>
+
+const fetchPromoCode = async () => {
+  const response = await fetch("/Data/MockData.json");
+  if(!response.ok){
+    throw new Error("Failed to fetch promo codes");
+  }
+  return response.json();
+};
