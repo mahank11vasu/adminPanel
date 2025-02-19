@@ -71,7 +71,6 @@ const PromoCodesUi = ({ data, currentPage, totalPages, setCurrentPage, entriesPe
           </div>
         </div>
 
-        {/* Table */}
         <table className="min-w-full">
           <thead>
             <tr className="text-custom-blue">
