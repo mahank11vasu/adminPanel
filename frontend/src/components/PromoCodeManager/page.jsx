@@ -1,43 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";  
 import PromoCodesUi from "../../ui/PromoCodeUi/page";
 import { Box, Typography } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import { useState, useEffect } from "react";
 
+const fetchPromoCodes = async ({ queryKey }) => {
+  const [_key, page, entriesPerPage] = queryKey;
+  const response = await fetch("/Data/MockData.json");
+  if (!response.ok) throw new Error("Failed to fetch promo codes");
 
-const PromoCodeManager = ()=>{
+  const allData = await response.json();
+  
+  // Pagination Logic
+  const start = (page - 1) * entriesPerPage;
+  const paginatedData = allData.slice(start, start + entriesPerPage);
 
-  const [resWidth, setResWidth] = useState(window.innerWidth > 768);
+  return { 
+    data: paginatedData,
+    totalEntries: allData.length
+  };
+};
 
-  useEffect(() => {
-    const handleResize = () => setResWidth(window.innerWidth > 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-   
-////  React Query 
-const { data, isLoading, isError, error } = useQuery({
-  queryKey: ["promoCodes"],
-  queryFn: fetchPromoCode,
-  staleTime: 1000 * 60 * 10,
-  refetchOnWindowFocus: true,
-});
+const PromoCodeManager = () => {
+  const navigate = useNavigate();
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
 
-if(isLoading) return <p>Loading...</p>
-if(isError) return <p>Error:{error.message}</p>
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["promoCodes", currentPage, entriesPerPage],
+    queryFn: fetchPromoCodes,
+    keepPreviousData: true, 
+  });
 
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error: {error.message}</p>;
 
-return(<>
+  const totalPages = Math.ceil(data.totalEntries / entriesPerPage);
 
-<div>
-<div className="flex min-h-screen bg-gray-100">
+  return (
+    <div className="flex min-h-screen bg-gray-100">
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
           <div className="bg-custom-blue p-12 h-60 flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-white">
-              @ Promo Code Manager
-            </h1>
+            <h1 className="text-3xl font-bold text-white">@ Promo Code Manager</h1>
             <Box
               component="button"
               onClick={() => navigate("/app/add-promoCode")}
@@ -50,31 +57,23 @@ return(<>
               }}
             >
               <Add />
-              {resWidth ? <Typography>Add</Typography> : ""}
+              <Typography>Add</Typography>
             </Box>
           </div>
-          <div className=" mx-auto px-6 drop-shadow-lg ">
-            
-           <PromoCodesUi data={data} />
+          <div className="mx-auto px-6 drop-shadow-lg">
+            <PromoCodesUi 
+              data={data.data} 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              setCurrentPage={setCurrentPage}
+              entriesPerPage={entriesPerPage}
+              setEntriesPerPage={setEntriesPerPage}
+            />
           </div>
         </div>
       </div>
     </div>
-</div>
-
-</>)
-
-}
+  );
+};
 
 export default PromoCodeManager;
-
-
-//React Query Function goes here------>>>>>>>
-
-const fetchPromoCode = async () => {
-  const response = await fetch("/Data/MockData.json");
-  if(!response.ok){
-    throw new Error("Failed to fetch promo codes");
-  }
-  return response.json();
-};
